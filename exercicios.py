@@ -1,7 +1,9 @@
 import json
 import re
 import random
-
+# Sobre o exercicio 3, irei estar deixando 2 resoluçõs pelo motivo de ambiguidade, não sei se os dias com 0 de lucro são somados para contabilizar
+# A media do mês, então estarei deixando uma resolução somando os 0 na média e ignorando eles como valor minimo de faturamento, e deixei outro
+# onde conto eles como valor minimo e mantenho na média, cajo desejem testar os dois, basta descomentar um e usar o outro.
 #EXERCICIO 1 
 def ex1():
     indice = 13
@@ -34,7 +36,8 @@ def fibo():
     print(f"\n{text} {fibo}\n")
 
 #EXERCICIO 3 
-def faturamento():
+# Estarei desconsiderando os zeros nesse
+def faturamento():    
     faturamentoMax = [0]
     faturamentoMin = [0]
     faturaPerDia = []
@@ -44,46 +47,108 @@ def faturamento():
     diaMin = list()
     dias = 0
 
-    with open('faturamento.json', 'r') as file:
+    with open('dados.json', 'r') as file:
         dados = json.load(file)
 
-    for data,val in dados["faturamento_diario"].items():
-        mediaFatura += val
-        dias += 1 
+    for data in dados:
+        if(data['valor'] != 0.0):
+            mediaFatura += data['valor']
+            dias += 1 
+        
 
-        faturaPerDia.append(val)
+        faturaPerDia.append(data['valor'])
 
         if(faturamentoMax[0] == 0 or faturamentoMin == 0):
-            faturamentoMax[0] = val
-            faturamentoMin[0] = val
-            diaMax.append(data)
-            diaMin.append(data)
+            faturamentoMax[0] = data['valor']
+            faturamentoMin[0] = data['valor']
+            diaMax.append(data['dia'])
+            diaMin.append(data['dia'])
 
-        if(val == faturamentoMax[0]):              
-            diaMax.append(data)  
+        if(data['valor'] == faturamentoMax[0]):              
+            diaMax.append(data['dia'])  
 
-        if(val == faturamentoMin[0]):         
-            diaMin.append(data)    
+        if(data['valor'] == faturamentoMin[0] and data['valor'] != 0.0 ):         
+            diaMin.append(data['dia'])    
 
-        if(val > faturamentoMax[0]):
-            faturamentoMax[0] = val       
+        if(data['valor'] > faturamentoMax[0]):
+            faturamentoMax[0] = data['valor']       
             diaMax = list()
-            diaMax.append(data)
-        if(val < faturamentoMin[0]):
-            faturamentoMin[0] = val   
+            diaMax.append(data['dia'])
+        if(data['valor'] < faturamentoMin[0] and data['valor'] != 0.0):
+            faturamentoMin[0] = data['valor']   
             diaMin = list()
-            diaMin.append(data) 
-
+            diaMin.append(data['dia']) 
+    
     mediaFatura = mediaFatura/dias 
+    
     dias = 0
 
-    for i in range(0, len(faturaPerDia),1):
-        if(mediaFatura < faturaPerDia[i]):
+    for i in range(0, len(faturaPerDia),1):        
+        if(mediaFatura < faturaPerDia[i]):            
             dias += 1
 
-    print(f"\nO menor faturamento foi {faturamentoMin[0]} nos dias {diaMin}")
-    print(f"O maior faturamento foi {faturamentoMax[0]} nos dias {diaMax}")
-    print(f"O total de dias em que o faturamento foi maior que a media diária mensal é de {dias}\n")
+    print(f"\nO menor faturamento foi R${faturamentoMin[0]:.2f} nos dias {diaMin}")
+    print(f"O maior faturamento foi R${faturamentoMax[0]:.2f} nos dias {diaMax}")
+    print(f"O total de dias em que o faturamento foi maior que a media diária mensal de R${mediaFatura:.2f} é de {dias} dias\n")  
+
+# # 
+# # ESTAREI CONSIDERANDO NESSE
+# # 
+
+# def faturamento():    
+#     faturamentoMax = [0]
+#     faturamentoMin = [0]
+#     faturaPerDia = []
+#     mediaFatura = 0
+
+#     diaMax = list()
+#     diaMin = list()
+#     dias = 0
+
+#     with open('dados.json', 'r') as file:
+#         dados = json.load(file)
+
+#     for data in dados:
+#         mediaFatura += data['valor']
+#         dias += 1 
+        
+
+#         faturaPerDia.append(data['valor'])
+
+#         if(faturamentoMax[0] == 0 or faturamentoMin == 0):
+#             faturamentoMax[0] = data['valor']
+#             faturamentoMin[0] = data['valor']
+#             diaMax.append(data['dia'])
+#             diaMin.append(data['dia'])
+
+#         if(data['valor'] == faturamentoMax[0]):              
+#             diaMax.append(data['dia'])  
+
+#         if(data['valor'] == faturamentoMin[0]):         
+#             diaMin.append(data['dia'])    
+
+#         if(data['valor'] > faturamentoMax[0]):
+#             faturamentoMax[0] = data['valor']       
+#             diaMax = list()
+#             diaMax.append(data['dia'])
+#         if(data['valor'] < faturamentoMin[0]):
+#             faturamentoMin[0] = data['valor']   
+#             diaMin = list()
+#             diaMin.append(data['dia']) 
+    
+#     mediaFatura = mediaFatura/dias 
+    
+#     dias = 0
+
+#     for i in range(0, len(faturaPerDia),1):        
+#         if(mediaFatura < faturaPerDia[i]):            
+#             dias += 1
+
+#     print(f"\nO menor faturamento foi R${faturamentoMin[0]} nos dias {diaMin}")
+#     print(f"O maior faturamento foi R${faturamentoMax[0]:.2f} nos dias {diaMax}")
+#     print(f"O total de dias em que o faturamento foi maior que a media diária mensal de R${mediaFatura:.2f} é de {dias} dias\n")
+    
+    
 
 # EXERCICIO 4
 def regEx(values):
@@ -151,3 +216,63 @@ while(cond == True):
     if(prosseguir == "2"):
         cond = False               
 print("Muito obrigado por me testar senhor, meu dono teve um certo carinho em fazer esses exercícios para você, espero que tenha gostado :)")
+
+
+
+
+
+
+
+# 
+# MINHA RESOLUÇÂO EX3
+# 
+
+# faturamentoMax = [0]
+    # faturamentoMin = [0]
+    # faturaPerDia = []
+    # mediaFatura = 0
+
+    # diaMax = list()
+    # diaMin = list()
+    # dias = 0
+
+    # with open('faturamento.json', 'r') as file:
+    #     dados = json.load(file)
+
+    # for data,val in dados["faturamento_diario"].items():
+    #     mediaFatura += val
+    #     dias += 1 
+
+    #     faturaPerDia.append(val)
+
+    #     if(faturamentoMax[0] == 0 or faturamentoMin == 0):
+    #         faturamentoMax[0] = val
+    #         faturamentoMin[0] = val
+    #         diaMax.append(data)
+    #         diaMin.append(data)
+
+    #     if(val == faturamentoMax[0]):              
+    #         diaMax.append(data)  
+
+    #     if(val == faturamentoMin[0]):         
+    #         diaMin.append(data)    
+
+    #     if(val > faturamentoMax[0]):
+    #         faturamentoMax[0] = val       
+    #         diaMax = list()
+    #         diaMax.append(data)
+    #     if(val < faturamentoMin[0]):
+    #         faturamentoMin[0] = val   
+    #         diaMin = list()
+    #         diaMin.append(data) 
+
+    # mediaFatura = mediaFatura/dias 
+    # dias = 0
+
+    # for i in range(0, len(faturaPerDia),1):
+    #     if(mediaFatura < faturaPerDia[i]):
+    #         dias += 1
+
+    # print(f"\nO menor faturamento foi {faturamentoMin[0]} nos dias {diaMin}")
+    # print(f"O maior faturamento foi {faturamentoMax[0]} nos dias {diaMax}")
+    # print(f"O total de dias em que o faturamento foi maior que a media diária mensal é de {dias}\n")
